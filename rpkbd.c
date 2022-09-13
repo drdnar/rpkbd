@@ -2,7 +2,6 @@
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "pico/binary_info.h"
-//#include "bsp/board.h"
 #include "tusb.h"
 #include "usb_descriptors.h"
 #include "keyboard_matrix.h"
@@ -10,11 +9,11 @@
 
 void hid_task(void);
 
-  #include "pico/time.h"
-  static inline uint32_t board_millis(void)
-  {
-    return to_ms_since_boot(get_absolute_time());
-  }
+#include "pico/time.h"
+static inline uint32_t board_millis(void)
+{
+return to_ms_since_boot(get_absolute_time());
+}
 
 
 bi_decl(bi_program_description("rpkbd"));
@@ -29,14 +28,14 @@ bi_decl(bi_1pin_with_name(PICO_DEFAULT_UART_RX_PIN, "UART RX"));
 
 
 int main() {
-    //set_sys_clock_48mhz();
     set_sys_clock_pll(768000000, 4, 2); // 96 MHz
-    //set_sys_clock_pll(768000000, 4, 4); // 48 MHz but slightly lower power
+    //set_sys_clock_pll(768000000, 4, 4); // 48 MHz but slightly lower power than set_sys_clock_48mhz();
     stdio_init_all(); // Enable UART
     tusb_init();
 //    keyboard_init_matrix(); // Initialized upon USB mount.
-    puts("Device init 2.\n");
+//    puts("Device init 2.\n");
     while (1) {
+        // Power saving: wait for interrupt instead of leaving the CPU busy-waiting.
         __wfi();
         tud_task();
         hid_task();

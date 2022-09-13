@@ -244,7 +244,6 @@ static void continue_scan(uint alarm_num)
             idle_matrix();
         }
         scan_timer = delayed_by_us(scan_timer, SCAN_CYCLE_PERIOD - (SCAN_GROUPS * SCAN_TIME_INCREMENT));
-        //update_us_since_boot(&scan_timer, to_us_since_boot(scan_timer) + SCAN_CYCLE_PERIOD - (SCAN_GROUPS * SCAN_TIME_INCREMENT));
         hardware_alarm_set_target(alarm_num, scan_timer);
         process_scan();
         return;
@@ -253,7 +252,6 @@ static void continue_scan(uint alarm_num)
     gpio_set_dir(column, 1);
     gpio_put(column, 1);
     scan_timer = delayed_by_us(scan_timer, SCAN_TIME_INCREMENT);
-    //update_us_since_boot(&scan_timer, to_us_since_boot(scan_timer) + SCAN_TIME_INCREMENT);
     hardware_alarm_set_target(alarm_num, scan_timer);
 }
 
@@ -262,7 +260,6 @@ static void next_scan(uint alarm_num)
 {
     hardware_alarm_set_callback(alarm_num, &continue_scan);
     scan_timer = delayed_by_us(scan_timer, SCAN_TIME_INCREMENT);
-    //update_us_since_boot(&scan_timer, to_us_since_boot(scan_timer) + SCAN_TIME_INCREMENT);
     hardware_alarm_set_target(alarm_num, scan_timer);
     matrix_current_column = MATRIX_COLUMN_FIRST_PIN;
     gpio_disable_pulls(MATRIX_COLUMN_FIRST_PIN);
@@ -318,7 +315,6 @@ void keyboard_init_matrix(void)
     hardware_alarm_claim(KEYBOARD_SCAN_ALARM_NUM);
     hardware_alarm_set_callback(KEYBOARD_SCAN_ALARM_NUM, &begin_scan);
     scan_timer = delayed_by_us(get_absolute_time(), SCAN_TIME_INCREMENT);
-    //update_us_since_boot(&scan_timer, time_us_64() + SCAN_TIME_INCREMENT);
     hardware_alarm_set_target(KEYBOARD_SCAN_ALARM_NUM, scan_timer);
     idle_matrix();
 }
@@ -446,11 +442,7 @@ void keyboard_scan_matrix(void)
                     new_remote_code = HID_USAGE_CONSUMER_PLAY_PAUSE;
                     keys[i] = HID_KEY_NONE;
                     break;
-/*                case HID_KEY_KEYPAD_:
-                    new_remote_code = HID_USAGE_CONSUMER_;
-                    keys[i] = HID_KEY_NONE;
-                    break;
-*/            }
+            }
         }
     }
 #endif
@@ -477,16 +469,10 @@ void keyboard_scan_matrix(void)
     }
     else
         remote_report = false;
-/*    if (remote_report)
-    {
-        printf("Remote report: %04X\n", new);
-    }
-*/    if (remote_report)
+    if (remote_report)
         next_report = REPORT_ID_CONSUMER_CONTROL;
     if (keyboard_report)
         next_report = REPORT_ID_KEYBOARD;
-
-//    keyboard_report = false;
 }
 
 
@@ -522,49 +508,3 @@ void keyboard_send_next_report(void)
             return;
     }
 }
-
-// Per pin: Output disable, input enable, drive strength, pull-up, pull-down, schmitt trigger, slew rate
-
-// SIO: Single-cycle I/O
-// Each bank has output, output enable, and input
-// Output and output enable also have atomic SET, CLR, and XOR addresses
-// gpio_get(pin), gpio_put(u32 pin, bool value), gpio_set_dir(pin, direction)
-// gpio_set_mask(u32) -> Set a bunch of pins at once
-// gpio_clr_mask(u32) 
-// gpio_put_all(u32) 
-// u32 gpio_get_all(void) -> Read them all
-// gpio_set_dir_out_masked(u32) -> Set a bunch of pins to output at once
-// gpio_set_dir_in_masked(u32) -> Set a bunch of pins to input at once
-// gpio_set_dir_masked(u32 mask, u32 value) -> For each bit in mask, set to pin to input (0) or output (1) from value
-// gpio_set_dir_all_bits(u32) -> Set all GPIOs at once, 0 is in, 1 is out
-// gpio_is_dir_out gpio_get_dir
-// void gpio_init_mask(u32 gpio_mask) -> Initialise multiple GPIOs (enabled I/O and set func to GPIO_FUNC_SIO) Clear the output enable (i.e. set to input). Clear any output value.
-// gpio_pull_up(index)
-
-
-/*
-
-lib timestamp
-
-static absolute_time_t delayed_by_us (const absolute_time_t t, uint64_t us)
-Return a timestamp value obtained by adding a number of microseconds to another timestamp.
-
-static absolute_time_t get_absolute_time (void)
-static bool is_nil_time (absolute_time_t t)
-static absolute_time_t make_timeout_time_us (uint64_t us)
-
-__fast_mul(a,b) Sometimes GCC produces slow code for multiplying by a constant.  If b is constant, this selects the correct fastmul.
-
-bool best_effort_wfe_or_timeout (absolute_time_t timeout_timestamp)
-
-__isr for ISR
-Section attributes can be used to control where data goes in RAM or flash
-
-uint8_t 	rp2040_chip_version (void) 	Returns the RP2040 chip revision number.
-static uint8_t 	rp2040_rom_version (void)
-static void busy_wait_at_least_cycles	(	uint32_t 	minimum_cycles	)	
-static void 	__breakpoint (void)
-
-There is thread-safe queue library
-
-*/
